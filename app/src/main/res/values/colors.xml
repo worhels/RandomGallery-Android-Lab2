@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="gallery_background">#10131D</color>
+    <color name="gallery_surface">#191F2D</color>
+    <color name="gallery_surface_raised">#222B3D</color>
+    <color name="gallery_accent">#78E7D0</color>
+    <color name="gallery_on_accent">#10211E</color>
+    <color name="gallery_text">#F1F4F8</color>
+    <color name="gallery_text_secondary">#AAB5C6</color>
+    <color name="gallery_error">#FF8B8B</color>
+</resources>

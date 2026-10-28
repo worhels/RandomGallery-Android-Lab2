@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.RandomGallery" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/gallery_accent</item>
+        <item name="colorPrimaryVariant">@color/gallery_accent</item>
+        <item name="colorOnPrimary">@color/gallery_on_accent</item>
+        <item name="colorSecondary">@color/gallery_accent</item>
+        <item name="colorOnSecondary">@color/gallery_on_accent</item>
+        <item name="android:colorAccent">@color/gallery_accent</item>
+        <item name="android:fontFamily">sans</item>
+        <item name="android:windowActionModeOverlay">true</item>
+        <item name="android:navigationBarColor">@color/gallery_background</item>
+        <item name="android:statusBarColor">@color/gallery_background</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+        <item name="android:windowBackground">@color/gallery_background</item>
+    </style>
+</resources>

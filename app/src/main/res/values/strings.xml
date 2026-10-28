@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Випадкова галерея</string>
+    <string name="gallery_title">Випадкова галерея</string>
+    <string name="gallery_refresh">Оновити</string>
+    <string name="gallery_empty">Фотографій ще немає. Запустіть оновлення, щоб завантажити галерею.</string>
+    <string name="gallery_details">Перегляд фотографії</string>
+    <string name="gallery_back">Назад</string>
+    <string name="sync_idle">Галерея збережена на пристрої</string>
+    <string name="sync_checking">Перевіряємо оновлення…</string>
+    <string name="sync_available">Доступне оновлення галереї</string>
+    <string name="sync_scheduled">Оновлення заплановано. Потрібна мережа без тарифікації.</string>
+    <string name="sync_waiting_for_internet">Немає підключення до інтернету. Оновлення чекатиме на мережу.</string>
+    <string name="sync_waiting_for_unmetered">Очікуємо мережу Wi-Fi без тарифікації.</string>
+    <string name="sync_running">Завантажуємо фотографії…</string>
+    <string name="sync_success">Галерею оновлено</string>
+    <string name="sync_error">Не вдалося оновити галерею. Перевірте підключення до інтернету.</string>
+    <string name="sync_cancelled">Оновлення скасовано</string>
+    <string name="notification_channel_name">Оновлення галереї</string>
+    <string name="notification_channel_description">Сповіщення про нові фотографії та синхронізацію</string>
+    <string name="notification_available_title">Доступні нові фотографії</string>
+    <string name="notification_available_message">Завантажити оновлення галереї зараз?</string>
+    <string name="notification_sync_title">Оновлення галереї</string>
+    <string name="notification_sync_message">Завантаження фотографій: %1$d%%</string>
+    <string name="notification_confirm">Завантажити</string>
+    <string name="notification_cancel">Скасувати</string>
+    <string name="notification_cancelled">Оновлення скасовано</string>
+    <string name="notification_permission_needed">Дозвольте сповіщення, щоб отримувати повідомлення про оновлення.</string>
+</resources>
