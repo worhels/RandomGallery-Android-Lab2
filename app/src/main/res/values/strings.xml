@@ -20,6 +20,10 @@
     <string name="notification_channel_description">Сповіщення про нові фотографії та синхронізацію</string>
     <string name="notification_available_title">Доступні нові фотографії</string>
     <string name="notification_available_message">Завантажити оновлення галереї зараз?</string>
+    <string name="notification_boot_title">Перевірка оновлень галереї</string>
+    <string name="notification_boot_message">Перевірити, чи доступні нові фотографії?</string>
+    <string name="notification_check">Перевірити</string>
+    <string name="notification_updates_found">Доступні оновлення галереї</string>
     <string name="notification_sync_title">Оновлення галереї</string>
     <string name="notification_sync_message">Завантаження фотографій: %1$d%%</string>
     <string name="notification_confirm">Завантажити</string>

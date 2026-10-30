@@ -2,6 +2,7 @@ package ua.cn.stu.randomgallery.app;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.view.View;
 
 import androidx.fragment.app.Fragment;
@@ -27,6 +28,10 @@ public class GalleryNavigationInstrumentedTest {
     @Test
     public void localPhotoCanOpenDetailsSurviveRecreationAndReturnWithSystemBack() throws Exception {
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        if (Build.VERSION.SDK_INT >= 33) {
+            InstrumentationRegistry.getInstrumentation().getUiAutomation().grantRuntimePermission(
+                    context.getPackageName(), android.Manifest.permission.POST_NOTIFICATIONS);
+        }
         GalleryApplication application = (GalleryApplication) context.getApplicationContext();
         GalleryStorageImpl storage = application.getGalleryStorage();
         long previousTimestamp = storage.getTimestamp();

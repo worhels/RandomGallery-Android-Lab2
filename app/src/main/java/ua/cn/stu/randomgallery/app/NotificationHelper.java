@@ -20,6 +20,7 @@ final class NotificationHelper {
     private static final int CONFIRM_REQUEST_CODE = 4111;
     private static final int CANCEL_PROMPT_REQUEST_CODE = 4112;
     private static final int CANCEL_SYNC_REQUEST_CODE = 4113;
+    private static final int CHECK_UPDATES_REQUEST_CODE = 4114;
 
     private NotificationHelper() { }
 
@@ -41,19 +42,34 @@ final class NotificationHelper {
 
     static void showUpdateAvailable(Context context) {
         showChoice(context, R.string.notification_available_title,
-                R.string.notification_available_message, UPDATE_NOTIFICATION_ID);
+                R.string.notification_available_message, R.string.notification_confirm,
+                GalleryActionReceiver.ACTION_CONFIRM_SYNC, CONFIRM_REQUEST_CODE);
     }
 
     static void showBootPrompt(Context context) {
-        showChoice(context, R.string.notification_available_title,
-                R.string.notification_available_message, UPDATE_NOTIFICATION_ID);
+        postChoice(context, buildBootPrompt(context), UPDATE_NOTIFICATION_ID);
     }
 
-    private static void showChoice(Context context, int title, int message, int notificationId) {
-        if (!canPost(context)) return;
+    static NotificationCompat.Builder buildBootPrompt(Context context) {
         ensureChannel(context);
-        PendingIntent confirm = action(context, GalleryActionReceiver.ACTION_CONFIRM_SYNC,
-                CONFIRM_REQUEST_CODE);
+        PendingIntent confirm = action(context, GalleryActionReceiver.ACTION_CHECK_UPDATES,
+                CHECK_UPDATES_REQUEST_CODE);
+        PendingIntent cancel = action(context, GalleryActionReceiver.ACTION_DISMISS_UPDATE,
+                CANCEL_PROMPT_REQUEST_CODE);
+        return new NotificationCompat.Builder(context, CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_notification)
+                .setContentTitle(context.getString(R.string.notification_boot_title))
+                .setContentText(context.getString(R.string.notification_boot_message))
+                .setCategory(NotificationCompat.CATEGORY_STATUS)
+                .setAutoCancel(true)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .addAction(0, context.getString(R.string.notification_check), confirm)
+                .addAction(0, context.getString(R.string.notification_cancel), cancel);
+    }
+
+    private static void showChoice(Context context, int title, int message, int confirmLabel,
+                                   String confirmAction, int confirmRequestCode) {
+        PendingIntent confirm = action(context, confirmAction, confirmRequestCode);
         PendingIntent cancel = action(context, GalleryActionReceiver.ACTION_DISMISS_UPDATE,
                 CANCEL_PROMPT_REQUEST_CODE);
         NotificationCompat.Builder notification = new NotificationCompat.Builder(context, CHANNEL_ID)
@@ -63,8 +79,14 @@ final class NotificationHelper {
                 .setCategory(NotificationCompat.CATEGORY_STATUS)
                 .setAutoCancel(true)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .addAction(0, context.getString(R.string.notification_confirm), confirm)
+                .addAction(0, context.getString(confirmLabel), confirm)
                 .addAction(0, context.getString(R.string.notification_cancel), cancel);
+        postChoice(context, notification, UPDATE_NOTIFICATION_ID);
+    }
+
+    private static void postChoice(Context context, NotificationCompat.Builder notification, int notificationId) {
+        if (!canPost(context)) return;
+        ensureChannel(context);
         NotificationManagerCompat.from(context).notify(notificationId, notification.build());
     }
 

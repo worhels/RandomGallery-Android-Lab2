@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
@@ -17,13 +18,23 @@ import ua.cn.stu.randomgallery.RequestFailedException;
 
 public final class ActionsHandlerService extends Service {
     public static final String ACTION_CHECK_FOR_UPDATES = "ua.cn.stu.randomgallery.action.CHECK_FOR_UPDATES";
+    private static final String EXTRA_SHOW_RESULT_TOAST = "show_result_toast";
     private static final AtomicBoolean CHECK_RUNNING = new AtomicBoolean();
 
     private ExecutorService executor;
 
     public static void startCheck(Context context) {
+        startCheck(context, false);
+    }
+
+    public static void startConfirmedUpdateCheck(Context context) {
+        startCheck(context, true);
+    }
+
+    private static void startCheck(Context context, boolean showResultToast) {
         context.startService(new Intent(context, ActionsHandlerService.class)
-                .setAction(ACTION_CHECK_FOR_UPDATES));
+                .setAction(ACTION_CHECK_FOR_UPDATES)
+                .putExtra(EXTRA_SHOW_RESULT_TOAST, showResultToast));
     }
 
     @Override
@@ -33,6 +44,7 @@ public final class ActionsHandlerService extends Service {
             return START_NOT_STICKY;
         }
         if (!CHECK_RUNNING.compareAndSet(false, true)) return START_NOT_STICKY;
+        boolean showResultToast = intent.getBooleanExtra(EXTRA_SHOW_RESULT_TOAST, false);
         GalleryApplication application = (GalleryApplication) getApplication();
         application.getSyncState().setChecking();
         executor = Executors.newSingleThreadExecutor();
@@ -41,7 +53,15 @@ public final class ActionsHandlerService extends Service {
                 RandomGalleryClient client = application.getGalleryClient();
                 boolean available = client.hasUpdates();
                 application.getSyncState().setUpdateAvailable(available);
-                if (available) NotificationHelper.showUpdateAvailable(this);
+                if (available) {
+                    MainThreadHandler.run(() -> {
+                        if (showResultToast) {
+                            Toast.makeText(getApplicationContext(), R.string.notification_updates_found,
+                                    Toast.LENGTH_LONG).show();
+                        }
+                        NotificationHelper.showUpdateAvailable(getApplicationContext());
+                    });
+                }
             } catch (IOException | RequestFailedException exception) {
                 application.getSyncState().setError();
             } finally {

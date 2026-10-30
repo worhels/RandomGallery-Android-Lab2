@@ -17,6 +17,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 public final class MainActivity extends AppCompatActivity implements GalleryNavigation {
     private static final int NOTIFICATION_PERMISSION_REQUEST = 1401;
+    private boolean notificationPermissionRequestInFlight;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +36,7 @@ public final class MainActivity extends AppCompatActivity implements GalleryNavi
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, new GalleryFragment())
                     .commit();
+            root.post(this::requestNotificationPermission);
         }
         ActionsHandlerService.startCheck(this);
     }
@@ -57,7 +59,8 @@ public final class MainActivity extends AppCompatActivity implements GalleryNavi
     @Override
     public void requestNotificationPermission() {
         if (Build.VERSION.SDK_INT < 33 || checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
-                == PackageManager.PERMISSION_GRANTED) return;
+                == PackageManager.PERMISSION_GRANTED || notificationPermissionRequestInFlight) return;
+        notificationPermissionRequestInFlight = true;
         requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS},
                 NOTIFICATION_PERMISSION_REQUEST);
     }
@@ -66,10 +69,12 @@ public final class MainActivity extends AppCompatActivity implements GalleryNavi
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == NOTIFICATION_PERMISSION_REQUEST && grantResults.length > 0
-                && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-            Snackbar.make(findViewById(R.id.main_root), R.string.notification_permission_needed,
-                    Snackbar.LENGTH_LONG).show();
+        if (requestCode == NOTIFICATION_PERMISSION_REQUEST) {
+            notificationPermissionRequestInFlight = false;
+            if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                Snackbar.make(findViewById(R.id.main_root), R.string.notification_permission_needed,
+                        Snackbar.LENGTH_LONG).show();
+            }
         }
     }
 }
