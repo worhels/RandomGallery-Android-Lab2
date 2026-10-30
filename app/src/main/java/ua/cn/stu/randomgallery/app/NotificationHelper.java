@@ -62,6 +62,7 @@ final class NotificationHelper {
                 .setContentText(context.getString(R.string.notification_boot_message))
                 .setCategory(NotificationCompat.CATEGORY_STATUS)
                 .setAutoCancel(true)
+                .setDeleteIntent(cancel)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .addAction(0, context.getString(R.string.notification_check), confirm)
                 .addAction(0, context.getString(R.string.notification_cancel), cancel);

@@ -20,6 +20,7 @@ public final class GalleryActionReceiver extends BroadcastReceiver {
             SyncService.scheduleUpdate(context);
         } else if (ACTION_DISMISS_UPDATE.equals(action)) {
             NotificationHelper.cancelUpdatePrompt(context);
+            ActionsHandlerService.cancelPendingCheck(context);
         } else if (ACTION_CANCEL_SYNC.equals(action)) {
             SyncService.cancelScheduledUpdate(context);
         }

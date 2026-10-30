@@ -37,8 +37,8 @@ public final class MainActivity extends AppCompatActivity implements GalleryNavi
                     .replace(R.id.fragment_container, new GalleryFragment())
                     .commit();
             root.post(this::requestNotificationPermission);
+            ActionsHandlerService.startCheck(this);
         }
-        ActionsHandlerService.startCheck(this);
     }
 
     @Override

@@ -26,7 +26,8 @@
             android:permission="android.permission.BIND_JOB_SERVICE" />
         <service
             android:name=".ActionsHandlerService"
-            android:exported="false" />
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
         <receiver
             android:name=".BootReceiver"
             android:exported="true">

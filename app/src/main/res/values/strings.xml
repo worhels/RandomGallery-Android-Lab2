@@ -13,6 +13,7 @@
     <string name="sync_waiting_for_internet">Немає підключення до інтернету. Оновлення чекатиме на мережу.</string>
     <string name="sync_waiting_for_unmetered">Очікуємо мережу Wi-Fi без тарифікації.</string>
     <string name="sync_running">Завантажуємо фотографії…</string>
+    <string name="sync_progress_percent">Завантажено: %1$d%%</string>
     <string name="sync_success">Галерею оновлено</string>
     <string name="sync_error">Не вдалося оновити галерею. Перевірте підключення до інтернету.</string>
     <string name="sync_cancelled">Оновлення скасовано</string>

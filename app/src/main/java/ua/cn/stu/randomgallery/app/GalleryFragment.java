@@ -29,6 +29,7 @@ public final class GalleryFragment extends Fragment implements GalleryListener, 
     private RecyclerView recyclerView;
     private TextView emptyView;
     private TextView statusView;
+    private TextView progressTextView;
     private ProgressBar progressBar;
 
     @Override
@@ -53,6 +54,7 @@ public final class GalleryFragment extends Fragment implements GalleryListener, 
         recyclerView = view.findViewById(R.id.gallery_recycler);
         emptyView = view.findViewById(R.id.gallery_empty);
         statusView = view.findViewById(R.id.sync_status);
+        progressTextView = view.findViewById(R.id.sync_progress_text);
         progressBar = view.findViewById(R.id.sync_progress);
 
         int orientation = getResources().getConfiguration().orientation;
@@ -82,7 +84,7 @@ public final class GalleryFragment extends Fragment implements GalleryListener, 
 
     @Override
     public void onSyncStateChanged(@NonNull SyncState.Snapshot snapshot) {
-        if (statusView == null || progressBar == null) return;
+        if (statusView == null || progressBar == null || progressTextView == null) return;
         int statusText;
         switch (snapshot.status) {
             case CHECKING:
@@ -118,8 +120,19 @@ public final class GalleryFragment extends Fragment implements GalleryListener, 
         boolean visible = snapshot.status == SyncState.Status.SCHEDULED
                 || snapshot.status == SyncState.Status.RUNNING;
         progressBar.setVisibility(visible ? View.VISIBLE : View.GONE);
+        progressBar.setProgress(snapshot.progress);
         progressBar.setIndeterminate(snapshot.status == SyncState.Status.SCHEDULED);
-        if (snapshot.status == SyncState.Status.RUNNING) progressBar.setProgress(snapshot.progress);
+        if (snapshot.status == SyncState.Status.RUNNING) {
+            progressTextView.setText(getString(R.string.sync_progress_percent, snapshot.progress));
+            progressTextView.setVisibility(View.VISIBLE);
+        } else if (snapshot.status == SyncState.Status.SCHEDULED) {
+            progressTextView.setVisibility(View.GONE);
+        } else if (snapshot.status == SyncState.Status.SUCCESS) {
+            progressTextView.setText(getString(R.string.sync_progress_percent, snapshot.progress));
+            progressTextView.setVisibility(View.VISIBLE);
+        } else {
+            progressTextView.setVisibility(View.GONE);
+        }
     }
 
     private void showEmpty(boolean empty) {
@@ -138,6 +151,7 @@ public final class GalleryFragment extends Fragment implements GalleryListener, 
         emptyView = null;
         statusView = null;
         progressBar = null;
+        progressTextView = null;
         super.onDestroyView();
     }
 

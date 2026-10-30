@@ -3,6 +3,7 @@ package ua.cn.stu.randomgallery.app;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.Context;
+import android.app.NotificationManager;
 import android.content.Intent;
 import android.app.Notification;
 import android.os.Build;
@@ -41,6 +42,7 @@ public class NotificationActionsInstrumentedTest {
         GalleryApplication application = (GalleryApplication) context.getApplicationContext();
         long previousTimestamp = application.getGalleryStorage().getTimestamp();
         JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        ActionsHandlerService.cancelPendingCheck(context);
         SyncService.cancelScheduledUpdate(context);
         application.getGalleryStorage().setTimestamp(0);
 
@@ -78,6 +80,32 @@ public class NotificationActionsInstrumentedTest {
             SyncService.cancelScheduledUpdate(context);
             NotificationHelper.cancelUpdatePrompt(context);
         }
+    }
+
+    @Test
+    public void bootPromptCancellationDismissesPromptWithoutStartingCheck() throws Exception {
+        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        android.app.UiAutomation automation = InstrumentationRegistry.getInstrumentation().getUiAutomation();
+        if (Build.VERSION.SDK_INT >= 33) {
+            automation.grantRuntimePermission(context.getPackageName(),
+                    android.Manifest.permission.POST_NOTIFICATIONS);
+        }
+        JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        NotificationManager manager = context.getSystemService(NotificationManager.class);
+        ActionsHandlerService.cancelPendingCheck(context);
+        NotificationHelper.showBootPrompt(context);
+        assertTrue("The boot prompt should be posted when notification permission is granted",
+                hasNotification(manager, NotificationHelper.UPDATE_NOTIFICATION_ID));
+
+        NotificationHelper.buildBootPrompt(context).build().actions[1].actionIntent.send();
+        waitForPromptDismissal(manager);
+
+        assertFalse("Cancel must dismiss the prompt",
+                hasNotification(manager, NotificationHelper.UPDATE_NOTIFICATION_ID));
+        assertNull("Cancel must not schedule an update check",
+                scheduler.getPendingJob(ActionsHandlerService.UPDATE_CHECK_JOB_ID));
+        assertNull("Cancel must not schedule a photo download",
+                scheduler.getPendingJob(SyncService.JOB_ID));
     }
 
     @Test
@@ -128,6 +156,23 @@ public class NotificationActionsInstrumentedTest {
     private static boolean isWifiEnabled(android.app.UiAutomation automation) throws Exception {
         String output = runShell(automation, "settings get global wifi_on").trim();
         return "1".equals(output);
+    }
+
+    private static boolean hasNotification(NotificationManager manager, int id) {
+        if (manager == null) return false;
+        for (android.service.notification.StatusBarNotification notification : manager.getActiveNotifications()) {
+            if (notification.getId() == id) return true;
+        }
+        return false;
+    }
+
+    private static void waitForPromptDismissal(NotificationManager manager) throws InterruptedException {
+        long deadline = System.currentTimeMillis() + 5_000;
+        while (hasNotification(manager, NotificationHelper.UPDATE_NOTIFICATION_ID)
+                && System.currentTimeMillis() < deadline) {
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+            Thread.sleep(100);
+        }
     }
 
     private static void waitForNetworkLoss(Context context) throws InterruptedException {

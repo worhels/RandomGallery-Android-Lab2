@@ -6,6 +6,7 @@ import android.app.job.JobScheduler;
 import android.app.job.JobService;
 import android.content.ComponentName;
 import android.content.Context;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,6 +21,7 @@ import ua.cn.stu.randomgallery.RequestFailedException;
 
 public final class SyncService extends JobService {
     public static final int JOB_ID = 1402;
+    private static final String TAG = "RandomGallerySync";
     private static volatile boolean cancelledByUser;
 
     private final Object lock = new Object();
@@ -65,6 +67,7 @@ public final class SyncService extends JobService {
 
     @Override
     public boolean onStartJob(JobParameters params) {
+        Log.d(TAG, "onStartJob jobId=" + params.getJobId());
         synchronized (lock) {
             if (running) return false;
             running = true;
@@ -72,6 +75,7 @@ public final class SyncService extends JobService {
             cancelledByUser = false;
             GalleryApplication application = (GalleryApplication) getApplication();
             application.getSyncState().setRunning();
+            Log.d(TAG, "gallery sync started");
             NotificationHelper.showSyncProgress(this, 0);
             executor = Executors.newSingleThreadExecutor();
             future = executor.submit(() -> runSync(application, params));
@@ -84,10 +88,12 @@ public final class SyncService extends JobService {
         try {
             RandomGalleryClient client = application.getGalleryClient();
             success = client.syncGallery(progress -> {
+                Log.d(TAG, "gallery sync progress=" + progress + "%");
                 application.getSyncState().setProgress(progress);
                 NotificationHelper.showSyncProgress(this, progress);
             });
         } catch (IOException | RequestFailedException exception) {
+            Log.e(TAG, "gallery sync failed", exception);
             application.getSyncState().setError();
         }
         boolean result = success;
@@ -102,6 +108,7 @@ public final class SyncService extends JobService {
             future = null;
             if (success) application.getSyncState().setSuccess();
             else application.getSyncState().setError();
+            Log.d(TAG, success ? "gallery sync completed successfully" : "gallery sync completed with error");
             NotificationHelper.cancelSyncNotification(this);
             jobFinished(params, false);
             stopSelf();
@@ -114,6 +121,7 @@ public final class SyncService extends JobService {
 
     @Override
     public boolean onStopJob(JobParameters params) {
+        Log.d(TAG, "onStopJob jobId=" + params.getJobId());
         synchronized (lock) {
             if (activeParameters == params) {
                 running = false;
